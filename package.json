@@ -1,13 +1,17 @@
-{
-  "name": "nodejs-app",
+ {
+  "name": "supabase-openai-search",
   "version": "1.0.0",
-  "description": "A minimal Node.js web application.",
-  "main": "index.js",
-  "author": "alphasec",
-  "license": "MIT",
-   "dependencies": {
-  },
+  "description": "A Node.js application to search documents using Supabase and OpenAI embeddings.",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
+  },
+  "author": "Wayne Simpson",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.2",
+    "express": "^4.18.2",
+    "openai": "^4.24.3",
+    "supabase": "^1.131.3"
   }
 }
