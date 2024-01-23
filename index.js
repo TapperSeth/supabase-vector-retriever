@@ -1,6 +1,6 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
-const { Configuration, OpenAIApi } = require('openai');
+const openai = require('openai');
 
 // Environment variables
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -11,7 +11,7 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // OpenAI API client initialization
-const openai = new openai.OpenAI({ apiKey: openaiApiKey });
+const instance = new openai.OpenAI({ apiKey: openaiApiKey });
 
 // Initialize Express
 const app = express();
@@ -41,7 +41,7 @@ app.get('/search', verifyApiKey, async (req, res) => {
         }
 
         // Generate embeddings for the input query
-        const embeddingResponse = await openai.embeddings.create({
+        const embeddingResponse = await instance.embeddings.create({
             model: "text-embedding-ada-002",
             input: [inputQuery],
         });
