@@ -46,7 +46,11 @@ app.get('/search', verifyApiKey, async (req, res) => {
             input: [inputQuery],
         });
 
-        const queryEmbedding = embeddingResponse.data.data[0].embedding;
+        // Log the entire response to understand its structure
+        console.log(JSON.stringify(embeddingResponse, null, 2));
+
+        // Adjust the following line based on the structure observed in the logged response
+        const queryEmbedding = embeddingResponse.data[0]?.embedding; // Use optional chaining to avoid TypeError
 
         // Query the Supabase function to find similar documents
         const matchCount = 7; // Number of results to return
