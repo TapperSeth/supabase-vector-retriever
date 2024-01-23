@@ -1,4 +1,3 @@
-require('dotenv').config(); // Load environment variables
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const { Configuration, OpenAIApi } = require('openai');
