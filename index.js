@@ -11,9 +11,7 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // OpenAI API client initialization
-const openai = new OpenAIApi(new Configuration({
-    apiKey: openaiApiKey,
-}));
+const openai = new openai.OpenAI({ apiKey: openaiApiKey });
 
 // Initialize Express
 const app = express();
@@ -43,9 +41,9 @@ app.get('/search', verifyApiKey, async (req, res) => {
         }
 
         // Generate embeddings for the input query
-        const embeddingResponse = await openai.createEmbedding({
+        const embeddingResponse = await openai.embeddings.create({
             model: "text-embedding-ada-002",
-            input: inputQuery,
+            input: [inputQuery],
         });
 
         const queryEmbedding = embeddingResponse.data.data[0].embedding;
