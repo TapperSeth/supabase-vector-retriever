@@ -1,3 +1,22 @@
+const express = require('express');
+const { createClient } = require('@supabase/supabase-js');
+const openai = require('openai');
+
+// Environment variables
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const openaiApiKey = process.env.OPENAI_API_KEY;
+
+// Initialize Supabase client
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// OpenAI API client initialization
+const instance = new openai.OpenAI({ apiKey: openaiApiKey });
+
+// Initialize Express
+const app = express();
+app.use(express.json());
+
 // Middleware for API key verification
 function verifyApiKey(req, res, next) {
     const apiKey = req.get('X-API-KEY');
@@ -18,6 +37,7 @@ app.get('/search', verifyApiKey, async (req, res) => {
         const filter = req.query.filter ? JSON.parse(req.query.filter) : '{}'; // Optional filter parameter
 
         if (!inputQuery) {
+            console.log('Query parameter is missing');
             return res.status(400).send('Query parameter is required');
         }
 
@@ -30,14 +50,11 @@ app.get('/search', verifyApiKey, async (req, res) => {
             input: [inputQuery],
         });
 
-        // Log the entire response to understand its structure (commented out)
-        // console.log(JSON.stringify(embeddingResponse, null, 2));
+        // Adjust the following line based on the structure observed in the logged response
+        const queryEmbedding = embeddingResponse.data[0]?.embedding; // Use optional chaining to avoid TypeError
 
         // Add a console log to show that embeddings were generated
         console.log('Embeddings generated');
-
-        // Adjust the following line based on the structure observed in the logged response
-        const queryEmbedding = embeddingResponse.data[0]?.embedding; // Use optional chaining to avoid TypeError
 
         // Query the Supabase function to find similar documents
         const matchCount = 7; // Number of results to return
@@ -48,13 +65,23 @@ app.get('/search', verifyApiKey, async (req, res) => {
             filter: filter, // Passing the filter parameter to the stored procedure
         });
 
-        if (error) throw error;
-        res.status(200).json(data);
+        if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+        }
 
-        // Add a console log to show that the query was successful
-        console.log('Query successful');
+        // Add a console log to show the data retrieved from Supabase
+        console.log('Supabase data:', data);
+
+        res.status(200).json(data);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('An error occurred');
     }
+});
+
+// Start the server
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 });
