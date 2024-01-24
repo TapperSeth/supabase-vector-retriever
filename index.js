@@ -1,22 +1,3 @@
-const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-const openai = require('openai');
-
-// Environment variables
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const openaiApiKey = process.env.OPENAI_API_KEY;
-
-// Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// OpenAI API client initialization
-const instance = new openai.OpenAI({ apiKey: openaiApiKey });
-
-// Initialize Express
-const app = express();
-app.use(express.json());
-
 // Middleware for API key verification
 function verifyApiKey(req, res, next) {
     const apiKey = req.get('X-API-KEY');
@@ -40,14 +21,20 @@ app.get('/search', verifyApiKey, async (req, res) => {
             return res.status(400).send('Query parameter is required');
         }
 
+        // Add a console log to show the input query
+        console.log('Received query:', inputQuery);
+
         // Generate embeddings for the input query
         const embeddingResponse = await instance.embeddings.create({
             model: "text-embedding-ada-002",
             input: [inputQuery],
         });
 
-        // Log the entire response to understand its structure
-        console.log(JSON.stringify(embeddingResponse, null, 2));
+        // Log the entire response to understand its structure (commented out)
+        // console.log(JSON.stringify(embeddingResponse, null, 2));
+
+        // Add a console log to show that embeddings were generated
+        console.log('Embeddings generated');
 
         // Adjust the following line based on the structure observed in the logged response
         const queryEmbedding = embeddingResponse.data[0]?.embedding; // Use optional chaining to avoid TypeError
@@ -63,14 +50,11 @@ app.get('/search', verifyApiKey, async (req, res) => {
 
         if (error) throw error;
         res.status(200).json(data);
+
+        // Add a console log to show that the query was successful
+        console.log('Query successful');
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('An error occurred');
     }
-});
-
-// Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
 });
